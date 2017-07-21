@@ -57,19 +57,20 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                // This callback is triggered when something is selected on the Spinner
-                Log.d("Bitcoin", "" + parentView.getItemAtPosition(position));
+                // The "onItemSelected()" method is triggered when something is selected on the Spinner
+                Log.d("Bitcoin", "" + parentView.getItemAtPosition(position)); // Print the chosen currency
 
-                String selectedCurrency = (String) parentView.getItemAtPosition(position);
-                String toBeParsed = "BTC" + selectedCurrency;
-                // Call letsDoSomeNetWorking() in onItemSelected and pass in the final URL that includes the user's chosen currency
+                String chosenCurrency = (String) parentView.getItemAtPosition(position); // Put the currency into a String called "chosenCurrency"
+                String toBeParsed = "BTC" + chosenCurrency; // Append the "chosenCurrency" String variable to the "toBeParsed" String variable
+
+                // Call "letsDoSomeNetWorking()" in onItemSelected() and pass in the final URL that includes the user's chosenCurrency (toBeParsed)
                 letsDoSomeNetworking(BASE_URL + toBeParsed);
                 Log.d("Bitcoin", "" + BASE_URL + toBeParsed);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-                // This callback is triggered when nothing is selected on the Spinner
+                // The "onNothingSelected()" method is triggered when nothing is selected on the Spinner
                 Log.d("Bitcoin", "Nothing selected");
             }
 
@@ -81,42 +82,45 @@ public class MainActivity extends AppCompatActivity {
     // TODO: complete the letsDoSomeNetworking() method
     private void letsDoSomeNetworking(String url) {
 
+        /* Create a AsyncHttpClient object to make the API call.
+         This Class is included in the library we added in the Gradle dependency*/
         AsyncHttpClient client = new AsyncHttpClient();
+
+        // Supply the parameters needed for the API call (the url with the chosen currency appended to the end)
         client.get(url, new JsonHttpResponseHandler() {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // called when response HTTP status is "200 OK"
+                // the "onSuccess()" method is called when response HTTP status is "200 OK"
                 Log.d("Bitcoin", "JSON: " + response.toString());
 
-                String mPrice = null;
-                try {
-                    mPrice = response.getString("ask");
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                String mPrice = null; // Create a temporary variable to hold the price of the given currency
+                try { // Try to...
+                    mPrice = response.getString("ask"); // Get the String value of the the "ask"
+                } catch (JSONException e) { // Catch a JSON exception if there is a problem parsing it
+                    e.printStackTrace(); // Print the error
                 }
 
-                updateUI(mPrice);
+                updateUI(mPrice); // Pass the "mPrice" String variable as a parameter to the "updateUI()" method
 
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable e, JSONObject response) {
-                // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                // The "onFailure()" method is called when response HTTP status is "4XX" (eg. 401, 403, 404)
                 Log.d("Bitcoin", "Request fail! Status code: " + statusCode);
                 Log.d("Bitcoin", "Fail response: " + response);
                 Log.e("ERROR", e.toString());
-                Toast.makeText(MainActivity.this, "Request Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Request Failed", Toast.LENGTH_SHORT).show(); // Create Toast message
             }
         });
     }
 
     private void updateUI(String price) {
         Log.d("Clima", "updateUI() callback received");
-        // The "updateUI()" method takes care of updating all of the views on screen, using the "WeatherDataModel"
+        // The "updateUI()" method takes care of updating all of the views on screen
 
-        // Update the temperature text on screen
-        //mTemperatureLabel.setText(weather.getTemperature());
+        // Update the "mPriceTextView" with the currency price
         mPriceTextView.setText(price);
 
     }
